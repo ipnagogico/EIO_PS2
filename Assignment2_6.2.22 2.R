@@ -48,13 +48,13 @@ range(data$year) #this is the time period we are interested in in the task, no c
 exp(min(data$ln_investR)) #minimum expenditure is still >0
 #ln invest was total expenditures (new and used) from 1997 on, but in the dataset here it is adjusted with a constructed fraction new expenditures to reflect investments 
 
-#industries in the dataset:
-
-length(unique(data$naics)); nrow(data) #473 unique industries and 6149 observations and 
+#industries & observations in the dataset:
+length(unique(data$naics))
+length(unique(data$year))
+nrow(data) #473 unique industries over 13 years yield 6149 observations in total 
 
 
 ### task 2: 
-
 
 # Create summary table
 sumtable(variables,
@@ -95,6 +95,7 @@ summary(ols)
 
 coeffs_ols <- ols$coefficients[2:4]
 
+# We create a Matrix of coefficients to store our results in
 coeff_matrix <- matrix(data = NA, nrow = 3, ncol = 4)
 rownames(coeff_matrix) <- c("Labor", "Material", "Capital")
 colnames(coeff_matrix) <- c("OLS", "FE", "OP", "LP")
@@ -102,14 +103,13 @@ round_coeffs <- 3
 
 coeff_matrix[,"OLS"] <- round(coeffs_ols, round_coeffs)
 
-#get the confidence intervalls
-labor_ci_ols<-round(confint(ols, 'ln_labor', level=0.95),3)
-material_ci_ols<-round(confint(ols, 'ln_matcostR', level=0.95),3)
-capital_ci_ols<-round(confint(ols, 'ln_capital', level=0.95),3)
+#get the 95% confidence intervalls
+labor_ci_ols <- round(confint(ols, 'l', level=0.95),3)
+material_ci_ols <- round(confint(ols, 'm', level=0.95),3)
+capital_ci_ols <- round(confint(ols, 'k', level=0.95),3)
 
 #for visualization: creat html chunk: 
-
-stargazer(ols, type = "html", title= "OLS Regression", ci=T) 
+stargazer(ols, type = "html", title = "OLS Regression", ci = T)
 
 
 
@@ -134,19 +134,19 @@ reg_data_fe <- reg_data_ols %>%
          diff.m = m - lag.m) 
 
 fe <- lm(diff.y ~ 0 + diff.l + diff.m + diff.k, 
-         data = reg_data_fe %>% filter(!is.na(lag.y)))  # for the first year, we don't have the lagged variables. These get filtered out
+         data = reg_data_fe %>% filter(!is.na(lag.y)))  # for the first year, we don't have a referential previous period. These get filtered out
 summary(fe)
 
 coeffs_fe <- fe$coefficients
 coeff_matrix[,"FE"] <- round(coeffs_fe, round_coeffs)
 
 # get confidence intervalls
-labor_ci_fe<-round(confint(fe, 'diff.l', level=0.95),3)
-material_ci_fe<-round(confint(fe, 'diff.m', level=0.95),3)
-capital_ci_fe<-round(confint(fe, 'diff.k', level=0.95),3)
+labor_ci_fe <- round(confint(fe, 'diff.l', level=0.95),3)
+material_ci_fe <- round(confint(fe, 'diff.m', level=0.95),3)
+capital_ci_fe <- round(confint(fe, 'diff.k', level=0.95),3)
 
 #for visualization: creat html chunk: 
-stargazer(fe, type = "html", title= "Fixed Effect Regression (First Difference)",  ci=T)
+stargazer(fe, type = "html", title = "Fixed Effect Regression (First Difference)",  ci = T)
 
 #we see, the number of observations is exactly the total number minus the count of the first observatiosn per industry
 
@@ -370,7 +370,7 @@ optimx(par = c(coeffs_lp1["m"], coeffs_lp1["k"]),
 #TODO: Try different methods or alter function
 
 
-#carina: vlt so abändern: (läuft noch nicht)
+#carina: vlt so ab?ndern: (l?uft noch nicht)
 
 #####start
 optimize_lp_c <- function(m,k) {
