@@ -203,10 +203,10 @@ op_data <- reg_data_fe  %>%
 
 op1 <- lm(y ~ l + m + 
             k + 
-            lag.k + lag.k2 + lag.k3 + #from here on we approximate w (productivity) with a polynom of lagged capital and investment plus their interactions
+            lag.k + lag.k2 + lag.k3 + #from here on we approximate omega with a polynomial of lagged capital and investment plus their interactions
             i + i2 + i3 + 
             lag.ik + lag.i2k + lag.ik2 + 
-            t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12, 
+            t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12, 
           data = op_data %>% filter(!is.na(lag.y),
                                     i > 0))
 
@@ -216,7 +216,7 @@ coeffs_op1 <- op1$coefficients #save the coefficients of stage 1
 #relevant are the labor and material coefficient (rest is eather uninteresting (times dummies) or (more seriously) biased because not separable here
 
 #for visualization: creat html chunk: (only display labor and material)
-stargazer(op1, type = "html", title= "OP first stage", keep= c("l","m"), ci=T)
+stargazer(op1, type = "html", title = "OP first stage", keep= c("l","m"), ci=T)
 
 
 
@@ -334,7 +334,7 @@ lp_data <- reg_data_fe %>%
 lp1 <- lm(y ~ l +
             k + m +
             k2 + k3 + m2 + m3 + mk + m2k + mk2 +
-            t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13,
+            t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12,
           data = lp_data)
 summary(lp1)
 
