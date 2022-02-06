@@ -155,15 +155,27 @@ stargazer(fe, type = "html", title = "Fixed Effect Regression (First Difference)
 
 #(additionally: mean difference approach for comparison: )
 
-means <-data%>% group_by(naics) %>% summarise(labor_mean = mean(ln_labor), capital_mean = mean(ln_capital), material_mean = mean(ln_matcostR), output_mean = mean(ln_outputR))
+means <- data %>% 
+  group_by(naics) %>% 
+  summarise(labor_mean = mean(ln_labor), 
+            capital_mean = mean(ln_capital), 
+            material_mean = mean(ln_matcostR), 
+            output_mean = mean(ln_outputR))
+
 reg_data_fe_mean <- left_join(data, means, by= "naics")
-reg_data_fe_mean <-  reg_data_fe_mean %>% mutate(y_dif = ln_outputR- output_mean,l_dif = ln_labor -labor_mean, capital_dif = ln_capital-capital_mean , mat_dif = ln_matcostR-material_mean )
+
+reg_data_fe_mean <-  reg_data_fe_mean %>% 
+  mutate(y_dif = ln_outputR- output_mean,
+         l_dif = ln_labor - labor_mean, 
+         capital_dif = ln_capital - capital_mean, 
+         mat_dif = ln_matcostR - material_mean )
 #include fixed effects for the firms:
 #fixed effect estimation with the mean differences approach is able to solve the selection bias and simultanety problem, which would exist normally 
 fe_mean <- lm(y_dif ~ l_dif + mat_dif + capital_dif + 0, reg_data_fe_mean)
 summary(fe_mean)
 summary(fe)
-stargazer(fe_mean, type = "html", title= "Fixed Effect Regression (Mean Difference)",  ci=T)
+
+stargazer(fe_mean, type = "html", title = "Fixed Effect Regression (Mean Difference)",  ci=T)
 
 
 ###task 6: 
