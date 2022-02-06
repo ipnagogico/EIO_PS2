@@ -375,12 +375,41 @@ optimize_lp <- function(coeff) {
   return(g_abs)
 }
 
+# Find a value for both coefficients so that g becomes 0. Warning: It takes some time since it tries every method
 optimx(par = c(coeffs_lp1["m"], coeffs_lp1["k"]),
-       fn = optimize_lp)
+       fn = optimize_lp,
+       method = c('Nelder-Mead', 
+                  'BFGS', 
+                  'CG', 
+                  'L-BFGS-B', 
+                  'nlm', 
+                  'nlminb', 
+                  'spg', 
+                  'ucminf', 
+                  'newuoa', 
+                  'bobyqa', 
+                  'nmkb', 
+                  'hjkb', 
+                  'Rcgmin',
+                  'Rvmmin'))
 
-# Does not return a minimum of value 0, which is what we would want
-#TODO: Try different methods or alter function
 
+optimx(par = c(0.23, 0.71),
+       fn = optimize_lp,
+       method = c('Nelder-Mead', 
+                  'BFGS', 
+                  'CG', 
+                  'L-BFGS-B', 
+                  'nlm', 
+                  'nlminb', 
+                  'spg', 
+                  'ucminf', 
+                  'newuoa', 
+                  'bobyqa', 
+                  'nmkb', 
+                  'hjkb', 
+                  'Rcgmin',
+                  'Rvmmin'))
 
 #carina: vlt so ab?ndern: (l?uft noch nicht)
 
