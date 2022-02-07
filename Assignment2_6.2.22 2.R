@@ -11,7 +11,9 @@ packages <- c("dplyr",
               "stargazer",
               "vtable",
               "gmm",
-              "optimx") 
+              "optimx",
+              "plotly",
+              "tictoc") # tictoc is for timing how long a function takes. can be removed in final code. 
 
 
 
@@ -30,8 +32,6 @@ lapply(data, function(x) attributes(x)$label)
 
 
 ## Descriptive Statistics
-
-
 variables <- data %>% 
   select(ln_labor, ln_capital, ln_matcostR, ln_outputR)
 
@@ -371,9 +371,39 @@ optimize_lp <- function(coeff) {
   g1 <- as.vector(xi %*% lp2_data$lag.k)
   g2 <- as.vector(xi %*% lp2_data$lag.m)
   
-  g_abs <- abs(g1) + abs(g2) # ensure that we have a minimum where both cost functions are zero
-  return(g_abs)
+  g_abs <- abs(g1) + abs(g2)
+  g_squares <- g1^2 + g2^2# ensure that we have a minimum where both cost functions are zero
+  return(g_squares)
 }
+
+# Visualization of the optimization Routine
+test_values <- seq(-0, 1, by = 0.01)
+test_values1 <- rep(test_values, each = length(test_values))
+test_values2 <- rep(test_values, times = length(test_values))
+test_values_matrix <- cbind(test_values1, test_values2)
+
+test_result <- numeric(length = nrow(test_values_matrix))
+
+# Caution: Can take a while
+tic()
+for (i in seq(test_result)) {
+  test_result[i] <- optimize_lp(test_values_matrix[i,])
+}
+toc()
+
+test_data <- tibble(test_values1, test_values2, test_result)
+
+# 3D Plotting
+test_result_matrix <- matrix(test_result, 
+                             nrow = length(test_values), 
+                             byrow = T,
+                             dimnames = list(as.character(test_values),
+                                         as.character(test_values)))
+
+plot_ly(x = test_values,
+        y = test_values,
+        z = test_result_matrix,
+        type = 'surface')
 
 # Find a value for both coefficients so that g becomes 0. Warning: It takes some time since it tries every method
 optimx(par = c(coeffs_lp1["m"], coeffs_lp1["k"]),
