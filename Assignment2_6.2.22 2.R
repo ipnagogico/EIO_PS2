@@ -199,8 +199,25 @@ op_data <- reg_data_fe  %>%
          lag.i2k = i*i*lag.k,
          lag.ik2 = i*lag.k*lag.k)
 
-#first stage: ols linear regression of l, m, k and w proxy:
+# How many observations do we lose?
+op_data %>% 
+  filter(i <= 0) # Lost due to negative investment: All in the year 2007, 2008, 2009
 
+nrow(op_data %>% 
+       filter(year == "1997")) # Lost since we have no referential t-1
+
+nrow(op_data %>% 
+       filter(year != "1997",
+              i > 0))
+
+nrow(op_data %>% 
+       filter(year == "1998")) # Lost in second stage
+
+ nrow(op_data %>% 
+       filter(year == "1998" && i <= 0))
+
+
+#first stage: ols linear regression of l, m, k and w proxy:
 op1 <- lm(y ~ l + m + 
             k + 
             lag.k + lag.k2 + lag.k3 + #from here on we approximate omega with a polynomial of lagged capital and investment plus their interactions
@@ -312,6 +329,7 @@ op2
 
 
 ###task 7: 
+
 
 
 ## Levinson & Petrin
