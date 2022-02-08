@@ -126,12 +126,12 @@ reg_data_fe <- reg_data_ols %>%
   group_by(naics) %>% 
   mutate(lag.y = lag(y, n = 1, default = NA),
          lag.l = lag(l, n = 1, default = NA),
-         lag.k = lag(k, n = 1, default = NA),
          lag.m = lag(m, n = 1, default = NA),
+         lag.k = lag(k, n = 1, default = NA),
          diff.y = y - lag.y,
          diff.l = l - lag.l,
-         diff.k = k - lag.k,
-         diff.m = m - lag.m) 
+         diff.m = m - lag.m,
+         diff.k = k - lag.k) 
 
 fe <- lm(diff.y ~ 0 + diff.l + diff.m + diff.k, 
          data = reg_data_fe %>% filter(!is.na(lag.y)))  # for the first year, we don't have a referential previous period. These get filtered out
@@ -157,21 +157,21 @@ stargazer(fe, type = "html", title = "Fixed Effect Regression (First Difference)
 
 means <- data %>% 
   group_by(naics) %>% 
-  summarise(labor_mean = mean(ln_labor), 
-            capital_mean = mean(ln_capital), 
-            material_mean = mean(ln_matcostR), 
-            output_mean = mean(ln_outputR))
+  summarise(y_mean = mean(ln_outputR),
+            l_mean = mean(ln_labor), 
+            m_mean = mean(ln_matcostR), 
+            k_mean = mean(ln_capital))          
 
-reg_data_fe_mean <- left_join(data, means, by= "naics")
+reg_data_fe_mean <- left_join(data, means, by= ("naics"))
 
 reg_data_fe_mean <-  reg_data_fe_mean %>% 
-  mutate(y_dif = ln_outputR- output_mean,
-         l_dif = ln_labor - labor_mean, 
-         capital_dif = ln_capital - capital_mean, 
-         mat_dif = ln_matcostR - material_mean )
+  mutate(diff.y_mean = ln_outputR  - y_mean,
+         diff.l_mean = ln_labor - l_mean, 
+         diff.m_mean = ln_matcostR - m_mean,
+         diff.k_mean = ln_capital - k_mean)
 #include fixed effects for the firms:
 #fixed effect estimation with the mean differences approach is able to solve the selection bias and simultanety problem, which would exist normally 
-fe_mean <- lm(y_dif ~ l_dif + mat_dif + capital_dif + 0, reg_data_fe_mean)
+fe_mean <- lm(diff.y_mean ~ 0 + diff.l_mean + diff.m_mean + diff.k_mean, reg_data_fe_mean)
 summary(fe_mean)
 summary(fe)
 
@@ -213,7 +213,7 @@ nrow(op_data %>%
 nrow(op_data %>% 
        filter(year == "1998")) # Lost in second stage
 
- nrow(op_data %>% 
+nrow(op_data %>% 
        filter(year == "1998" && i <= 0))
 
 
@@ -416,7 +416,7 @@ test_result_matrix <- matrix(test_result,
                              nrow = length(test_values), 
                              byrow = T,
                              dimnames = list(as.character(test_values),
-                                         as.character(test_values)))
+                                             as.character(test_values)))
 
 plot_ly(x = test_values,
         y = test_values,
@@ -496,7 +496,7 @@ for (i in seq(reps)) {
   # We take a random sample to be used as indices for the bootstrap observations
   boot_sample <- sample(op_data, op_data, replace = T)
   boot_observations <- op_data[boot_sample, ]
-
+  
   # Implement 1st and 2nd Stage of OP algorithm
   
   
@@ -515,4 +515,3 @@ for (i in seq(reps)) {
 #here, we depict again the estimation results: 
 
 coeff_matrix
-
