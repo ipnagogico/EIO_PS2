@@ -40,11 +40,10 @@ for (var in colnames(variables)) {
   print(ggplot(data = variables, aes_string(x = var)) + geom_density())
 }
 
-# time period covered with the data:
+# Check the time period covered with the data:
 range(data$year) #this is the time period we are interested in in the task, no cuts needed 
 
-# ln investment: 
-
+# Check the investment
 exp(min(data$ln_investR)) #minimum expenditure is still >0
 #ln invest was total expenditures (new and used) from 1997 on, but in the dataset here it is adjusted with a constructed fraction new expenditures to reflect investments 
 
@@ -113,7 +112,7 @@ stargazer(ols, type = "html", title = "OLS Regression", ci = T)
 
 
 
-###task 4: 
+### task 4: 
 
 
 ## Fixed Effects
@@ -148,10 +147,7 @@ capital_ci_fe <- round(confint(fe, 'diff.k', level=0.95),3)
 #for visualization: creat html chunk: 
 stargazer(fe, type = "html", title = "Fixed Effect Regression (First Difference)",  ci = T)
 
-#we see, the number of observations is exactly the total number minus the count of the first observatiosn per industry
-
-
-
+#we see, the number of observations is exactly the total number minus the count of the first year observations per industry
 
 #(additionally: mean difference approach for comparison: )
 
@@ -178,12 +174,12 @@ summary(fe)
 stargazer(fe_mean, type = "html", title = "Fixed Effect Regression (Mean Difference)",  ci=T)
 
 
-###task 6: 
+### task 6: 
 
 
 ## Olley & Pakes
 
-#add all polynoms and interactions to the data: 
+#add all polynomials and interactions to the data: 
 
 op_data <- reg_data_fe  %>% 
   mutate(k2 = k*k,
@@ -201,26 +197,28 @@ op_data <- reg_data_fe  %>%
 
 # How many observations do we lose?
 op_data %>% 
-  filter(i <= 0) # Lost due to negative investment: All in the year 2007, 2008, 2009
+  filter(i <= 0) # Lost due to negative investment: All of them occur in the years 2007, 2008, 2009
 
 nrow(op_data %>% 
        filter(year == "1997")) # Lost since we have no referential t-1
 
 nrow(op_data %>% 
        filter(year != "1997",
-              i > 0))
+              i > 0)) # First Stage N
 
 nrow(op_data %>% 
        filter(year == "1998")) # Lost in second stage
 
 nrow(op_data %>% 
-       filter(year == "1998" && i <= 0))
+       filter(year != "1997",
+              year != "1998", 
+              i > 0)) # Second Stage N
 
 
-#first stage: ols linear regression of l, m, k and w proxy:
+#first stage: ols linear regression of l, m, and phi:
 op1 <- lm(y ~ l + m + 
             k + 
-            lag.k + lag.k2 + lag.k3 + #from here on we approximate omega with a polynomial of lagged capital and investment plus their interactions
+            lag.k + lag.k2 + lag.k3 + #from here on we approximate omega as h with a polynomial of lagged capital and investment plus their interactions
             i + i2 + i3 + 
             lag.ik + lag.i2k + lag.ik2 + 
             t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12, 
@@ -230,7 +228,7 @@ op1 <- lm(y ~ l + m +
 summary(op1)
 
 coeffs_op1 <- op1$coefficients #save the coefficients of stage 1
-#relevant are the labor and material coefficient (rest is eather uninteresting (times dummies) or (more seriously) biased because not separable here
+#relevant are the labor and material coefficient (rest is either uninteresting (times dummies) or (more seriously) biased because not separable here
 
 #for visualization: creat html chunk: (only display labor and material)
 stargazer(op1, type = "html", title = "OP first stage", keep= c("l","m"), ci=T)
