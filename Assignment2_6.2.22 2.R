@@ -269,6 +269,9 @@ optimize_op <- function(alpha_k) {
 op2 <- uniroot(optimize_op, lower = 0, upper = 5, tol = 0.0001) 
 coeffs_op2 <- op2$root
 
+#we see, the found coefficient results in a g value close to zero:
+optimize_op(coeffs_op2)   
+       
 #add coefficients to the table:
 coeffs_op <- c(coeffs_op1["l"], coeffs_op1["m"], coeffs_op2) 
 coeff_matrix[, "OP"] <- round(coeffs_op, round_coeffs)
