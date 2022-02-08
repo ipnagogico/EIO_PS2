@@ -206,6 +206,13 @@ nrow(op_data %>%
 
 nrow(op_data %>% 
        filter(year == "1998")) # Lost in second stage
+       
+# so in stage 2 we use 5198 observations:
+
+nrow(op_data %>% 
+       filter(year != "1997",
+              i > 0)) -nrow(op_data %>% 
+                              filter(year == "1998"))
 
 nrow(op_data %>% 
        filter(year != "1997",
