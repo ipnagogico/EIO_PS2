@@ -10,10 +10,8 @@ packages <- c("dplyr",
               "haven",
               "stargazer",
               "vtable",
-              "gmm",
               "optimx",
-              "plotly",
-              "tictoc") # tictoc is for timing how long a function takes. can be removed in final code. 
+              "plotly")
 
 
 
@@ -277,9 +275,9 @@ coeff_matrix[, "OP"] <- round(coeffs_op, round_coeffs)
 
 # Visualization of g function
 test_values_op <- seq(-5,5, by = 0.01)
-test_result_op <- numeric(length = length(test_values))
+test_result_op <- numeric(length = length(test_values_op))
 
-for (i in seq(test_values)) {
+for (i in seq(test_values_op)) {
   test_result_op[i] <- optimize_op(test_values_op[i])
 }
 
@@ -392,11 +390,9 @@ test_result_lp <- numeric(length = nrow(test_values_lp_matrix))
 
 # Get results for each combination 
 # Caution: Can take a while
-tic()
 for (i in seq(test_result_lp)) {
   test_result_lp[i] <- optimize_lp(test_values_lp_matrix[i,])
 }
-toc()
 
 test_data_lp <- tibble(test_values_lp1, test_values_lp2, test_result_lp)
 
