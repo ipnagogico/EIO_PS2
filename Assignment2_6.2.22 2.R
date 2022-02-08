@@ -276,16 +276,18 @@ coeffs_op <- c(coeffs_op1["l"], coeffs_op1["m"], coeffs_op2)
 coeff_matrix[, "OP"] <- round(coeffs_op, round_coeffs)
 
 # Visualization of g function
-test_values <- seq(-5,5, by = 0.01)
-test_result <- numeric(length = length(test_values))
+test_values_op <- seq(-5,5, by = 0.01)
+test_result_op <- numeric(length = length(test_values))
 
 for (i in seq(test_values)) {
-  test_result[i] <- optimize_op(test_values[i])
+  test_result_op[i] <- optimize_op(test_values_op[i])
 }
 
-ggplot(tibble(test_values, test_result), aes(x = test_values, y = test_result)) + 
+ggplot(tibble(test_values_op, test_result_op), aes(x = test_values_op, y = test_result_op)) + 
   geom_line() + 
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red")
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(x = "Capital Coefficient",
+       y = "Objective function value")
 
 
 
@@ -378,39 +380,46 @@ best_method
 # Store the coefficients
 coeff_matrix[, "LP"] <- round(c(coeffs_lp1["l"], best_method$m, best_method$k), 3)
 
-# Visualization of the optimization Routine
-test_values <- seq(-0, 1, by = 0.01)
-test_values1 <- rep(test_values, each = length(test_values))
-test_values2 <- rep(test_values, times = length(test_values))
-test_values_matrix <- cbind(test_values1, test_values2)
+# Visualization of the objective function
+# Create each combination of alpha_m and alpha_k between 0 and 1
+test_values_lp <- seq(0, 1, by = 0.01)
+test_values_lp1 <- rep(test_values_lp, each = length(test_values_lp))
+test_values_lp2 <- rep(test_values_lp, times = length(test_values_lp))
+test_values_lp_matrix <- cbind(test_values_lp1, test_values_lp2)
+colnames(test_values_lp_matrix) <- c("m", "k")
 
-test_result <- numeric(length = nrow(test_values_matrix))
+test_result_lp <- numeric(length = nrow(test_values_lp_matrix))
 
 # Get results for each combination 
 # Caution: Can take a while
 tic()
-for (i in seq(test_result)) {
-  test_result[i] <- optimize_lp(test_values_matrix[i,])
+for (i in seq(test_result_lp)) {
+  test_result_lp[i] <- optimize_lp(test_values_lp_matrix[i,])
 }
 toc()
 
-test_data <- tibble(test_values1, test_values2, test_result)
+test_data_lp <- tibble(test_values_lp1, test_values_lp2, test_result_lp)
 
-# 3D Plotting
-test_result_matrix <- matrix(test_result, 
-                             nrow = length(test_values), 
+# 3D Visualization of the Objective function
+test_result_lp_matrix <- matrix(test_result_lp, 
+                             nrow = length(test_values_lp), 
                              byrow = T,
-                             dimnames = list(as.character(test_values),
-                                             as.character(test_values)))
+                             dimnames = list(as.character(test_values_lp),
+                                             as.character(test_values_lp)))
 
-plot_ly(x = test_values,
-        y = test_values,
-        z = test_result_matrix,
-        type = 'surface')
+
+axx <- list(title = "Capital coefficient")
+axy <- list(title = "Material coefficient")
+axz <- list(title = "Objective function value")
+
+plot_ly(x = test_values_lp,
+        y = test_values_lp,
+        z = test_result_lp_matrix,
+        type = 'surface') %>% 
+  layout(scene = list(xaxis = axx,yaxis = axy, zaxis = axz))
 
 
 ## task 8/9 (result table):
-
 #here, we depict again the estimation results: 
 
 coeff_matrix
