@@ -321,6 +321,10 @@ lp_data <- reg_data_fe %>%
          lag.i2k = i*i*lag.k,
          lag.ik2 = i*lag.k*lag.k)
 
+#find out if there are negative capital or material inputs:
+nrow(lp_data %>% 
+  filter(k <= 0 | m<=0) ) # no non positive value 
+       
 ##first stage: 
 
 lp1 <- lm(y ~ l +
