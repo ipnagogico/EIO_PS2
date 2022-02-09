@@ -1,6 +1,8 @@
 ## Preparation
 
-#wd <- setwd("your wd")
+#wd <- getwd() #find your working directory (here all files to be importtet must lay)
+#setwd(wd) 
+
 
 rm(list=ls())
 
@@ -270,6 +272,9 @@ optimize_op <- function(alpha_k) {
   return(g)
 }
 
+#for a gmm, we normally use starting values, one possibility could be the resgression coefficinet of the following lm regression: 
+lm(phi_proxy~k, data =op_data2)
+       
 # Alter the argument of the function optimize_op such that you make the return value g zero
 # this is the aim of the uniroot function to get g=0, it searches for alpha k value in the borders lower-upper
 
